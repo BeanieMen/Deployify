@@ -1,11 +1,12 @@
-FROM node:20
+FROM archlinux:latest
+RUN pacman --noconfirm -Syy git npm nodejs
+WORKDIR /
 
-# ARG GIT
-# ARG MANAGER
+ARG GIT
+ENV link $GIT
 
-# ENV link GIT
-# ENV manager MANAGER
+RUN git clone $link source
+WORKDIR /source
 
-# RUN git clone $link source
-# RUN cd source
-# RUN $manager run build
+RUN npm install
+RUN npm run build
