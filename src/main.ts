@@ -41,7 +41,11 @@ app.post("/", (req, res: Response) => {
             docker.createContainer(
               {
                 Image: "ex1",
-                Env: [`LINK=${github}`],
+                Cmd: [
+                  '/bin/bash',
+                  '-c',
+                  `cd /source && git clone ${github} . && npm install && npm run build`
+                ]
               },
               (err, container) => {
                 if (err) {
