@@ -20,8 +20,8 @@ app.post("/", async (req, res: Response) => {
   res.send("GitHub link received successfully!");
 
   try {
-    const imageName = await buildDockerImage();
-    const container = await createAndStartContainer(imageName, github);
+    await buildDockerImage();
+    const container = await createAndStartContainer("ex1", github);
     await waitForContainer(container);
     await copyFilesFromContainer(container);
   } catch (err) {

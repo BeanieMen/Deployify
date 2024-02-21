@@ -1,9 +1,3 @@
 FROM archlinux:latest
-RUN pacman --noconfirm -Syy git npm nodejs
+RUN pacman --noconfirm -Syy git yarn nodejs
 WORKDIR /source
-
-# CMD ["sh", "-c", "git clone $LINK ."]
-# # CMD git clone $LINK .
-# CMD echo 'Cloning completed'
-# CMD npm install
-# CMD npm run build

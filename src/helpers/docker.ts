@@ -6,8 +6,8 @@ import util from "util";
 const execAsync = util.promisify(exec);
 const docker = new Dockerode();
 
-export async function buildDockerImage(): Promise<string> {
-    return new Promise<string>((resolve, reject) => {
+export async function buildDockerImage(): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
         docker.buildImage(
             {
                 context: "./",
@@ -24,7 +24,7 @@ export async function buildDockerImage(): Promise<string> {
                             reject(error);
                         } else {
                             console.log("Docker image built successfully");
-                            resolve("ex1");
+                            resolve();
                         }
                     });
                 }
@@ -39,7 +39,7 @@ export async function createAndStartContainer(imageName: string, github: string)
         Cmd: [
             '/bin/bash',
             '-c',
-            `cd /source && git clone ${github} . && npm install && npm run build`
+            `cd /source && git clone ${github} . && yarn install && yarn run build`
         ]
     });
 
