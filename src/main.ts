@@ -4,10 +4,12 @@ import {
   createAndStartContainer,
   waitForContainer,
   copyFilesFromContainer,
+  deleteContainer,
 } from "./helpers/docker";
 
 const app = express();
-const port = 3000;
+const port = 80;
+
 app.use(express.json());
 
 app.post("/", async (req, res: Response) => {
@@ -21,7 +23,11 @@ app.post("/", async (req, res: Response) => {
     await buildDockerImage();
     const container = await createAndStartContainer("ex1", github);
     await waitForContainer(container);
-    await copyFilesFromContainer(container);
+    await copyFilesFromContainer(
+      container,
+      github.split("/")[3] + github.split("/")[4],
+    );
+    await deleteContainer(container);
   } catch (err) {
     console.error("An error occurred:", err);
   }

@@ -5,6 +5,7 @@ import util from "util";
 
 const execAsync = util.promisify(exec);
 const docker = new Dockerode();
+let logsFileStream: fs.WriteStream;
 
 export async function buildDockerImage(): Promise<void> {
   return new Promise<void>((resolve, reject) => {
@@ -36,7 +37,14 @@ export async function buildDockerImage(): Promise<void> {
 export async function createAndStartContainer(
   imageName: string,
   github: string,
+  logFile?: string,
 ) {
+  if (logFile) {
+    logsFileStream = fs.createWriteStream(`./logs/${logFile}`, {
+      flags: "a",
+    });
+  }
+
   const container = await docker.createContainer({
     Image: imageName,
     Cmd: [
@@ -64,7 +72,11 @@ export async function createAndStartContainer(
         console.error("Error attaching to container output:", err);
         return;
       }
-      stream!.pipe(process.stdout);
+      stream!.on("data", (chunk) => {
+        const filteredChunk = chunk.toString().replace(/[^\x20-\x7E]+/g, "");
+        process.stdout.write(filteredChunk + "\n");
+        if (logFile) logsFileStream.write(filteredChunk + "\n");
+      });
     },
   );
 
@@ -84,8 +96,11 @@ export async function waitForContainer(container: Dockerode.Container) {
   });
 }
 
-export async function copyFilesFromContainer(container: Dockerode.Container) {
-  const containerDistPath = `hostDist`;
+export async function copyFilesFromContainer(
+  container: Dockerode.Container,
+  to: string,
+) {
+  const containerDistPath = `build-warehouse/${to}`;
   fs.mkdirSync(containerDistPath, { recursive: true });
 
   try {
@@ -99,5 +114,20 @@ export async function copyFilesFromContainer(container: Dockerode.Container) {
     console.log("Files copied successfully!");
   } catch (cpErr) {
     throw new Error(`Error copying files from container: ${cpErr}`);
+  }
+}
+
+export async function deleteContainer(container: Dockerode.Container) {
+  try {
+    const { stdout, stderr } = await execAsync(
+      `docker container rm ${container.id}`,
+    );
+    if (stderr) {
+      throw new Error(`Error removing container: ${stderr}`);
+    }
+    console.log(stdout);
+    console.log("Container removed successfully!");
+  } catch (cpErr) {
+    throw new Error(`Error removing container: ${cpErr}`);
   }
 }
