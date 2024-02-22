@@ -1,13 +1,11 @@
 import express, { Response } from "express";
-import Dockerode from "dockerode";
-import fs from "fs";
-import { exec } from "child_process";
-import util from "util";
-import { buildDockerImage, createAndStartContainer, waitForContainer, copyFilesFromContainer } from "./helpers/docker";
+import {
+  buildDockerImage,
+  createAndStartContainer,
+  waitForContainer,
+  copyFilesFromContainer,
+} from "./helpers/docker";
 
-const execAsync = util.promisify(exec);
-
-const docker = new Dockerode();
 const app = express();
 const port = 3000;
 app.use(express.json());
@@ -28,7 +26,6 @@ app.post("/", async (req, res: Response) => {
     console.error("An error occurred:", err);
   }
 });
-
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
