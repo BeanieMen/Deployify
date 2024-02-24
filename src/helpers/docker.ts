@@ -50,7 +50,7 @@ export async function createAndStartContainer(
     Cmd: [
       "/bin/bash",
       "-c",
-      `cd /source && git clone ${github} . && yarn install && yarn run build`,
+      `git clone ${github} . && yarn install && yarn run build`,
     ],
   });
 
